@@ -19,10 +19,19 @@ import { schemaScorer, type AgentOutput } from "./scorers/schema";
 import { structureScorer } from "./scorers/structure";
 import { preservationScorer } from "./scorers/preservation";
 import { labelKeywordScorer } from "./scorers/labelKeyword";
+import {
+  resolveOpenRouterBaseURL,
+  resolveOpenRouterModel,
+} from "../src/openrouter";
 
 config({ path: ".dev.vars" });
 
-const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openrouter = createOpenAI({
+  name: "openrouter",
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: resolveOpenRouterBaseURL(process.env.OPENROUTER_BASE_URL),
+});
+const openrouterModel = resolveOpenRouterModel(process.env.OPENROUTER_MODEL);
 
 const testCases: GoldenTestCase[] = JSON.parse(
   readFileSync(join("evals", "datasets", "golden.json"), "utf-8")
@@ -42,7 +51,7 @@ Eval<GoldenTestCase, AgentOutput, GoldenTestCase>("Diagram Agent", {
 
   task: async (testCase) => {
     const result = await runAgent({
-      model: openai("gpt-5.4-mini"),
+      model: openrouter.chat(openrouterModel),
       messages: buildMessages(testCase),
       // Eval simulates a browser canvas: the seed elements become the
       // initial sim state, and queryCanvas is overridden inside runAgent to

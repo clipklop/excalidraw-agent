@@ -3,9 +3,15 @@ import { convertToModelMessages } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamAgent } from "./agent-core";
 import { compactHistory } from "./context/compaction";
+import {
+  resolveOpenRouterBaseURL,
+  resolveOpenRouterModel,
+} from "./openrouter";
 
 interface Env extends Cloudflare.Env {
-  OPENAI_API_KEY: string;
+  OPENROUTER_API_KEY: string;
+  OPENROUTER_BASE_URL?: string;
+  OPENROUTER_MODEL?: string;
   TAVILY_API_KEY: string;
   UPSTASH_VECTOR_REST_URL: string;
   UPSTASH_VECTOR_REST_TOKEN: string;
@@ -13,8 +19,14 @@ interface Env extends Cloudflare.Env {
 
 export class DesignAgent extends AIChatAgent<Env> {
   async onChatMessage() {
-    const openai = createOpenAI({ apiKey: this.env.OPENAI_API_KEY });
-    const model = openai("gpt-5.4-mini");
+    const openrouter = createOpenAI({
+      name: "openrouter",
+      apiKey: this.env.OPENROUTER_API_KEY,
+      baseURL: resolveOpenRouterBaseURL(this.env.OPENROUTER_BASE_URL),
+    });
+    const model = openrouter.chat(
+      resolveOpenRouterModel(this.env.OPENROUTER_MODEL),
+    );
 
     // Compact older history if the conversation has gotten long. The recent
     // few turns stay verbatim; everything older is collapsed into one

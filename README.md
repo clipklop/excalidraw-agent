@@ -27,7 +27,7 @@ The Excalidraw canvas remains the source of truth in the browser. The Cloudflare
 - React 19, Vite, and Excalidraw
 - Cloudflare Workers and Durable Objects
 - Cloudflare Agents SDK and AI SDK
-- OpenAI (`gpt-5.4-mini`)
+- OpenRouter (`openai/gpt-5.4-mini`)
 - Tavily for web search
 - Upstash Vector for retrieval-augmented generation
 - Braintrust for evaluations
@@ -35,7 +35,7 @@ The Excalidraw canvas remains the source of truth in the browser. The Cloudflare
 ## Prerequisites
 
 - Node.js 20 or newer
-- An OpenAI API key
+- An OpenRouter API key
 
 Web search, knowledge retrieval, and evaluations require the corresponding optional service credentials described below.
 
@@ -50,7 +50,9 @@ npm install
 Create a `.dev.vars` file in the project root:
 
 ```dotenv
-OPENAI_API_KEY=sk-...
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_MODEL=openai/gpt-5.4-mini
 
 # Optional: enables current-information web search
 TAVILY_API_KEY=tvly-...
@@ -62,6 +64,19 @@ UPSTASH_VECTOR_REST_TOKEN=...
 # Optional: required only for `npm run eval`
 BRAINTRUST_API_KEY=...
 ```
+
+`OPENROUTER_MODEL` accepts any model identifier supported by the configured API
+endpoint. For example:
+
+- `openai/gpt-5.4-mini` (default)
+- `qwen/qwen3.5-flash-02-23`
+
+To use Qwen, set `OPENROUTER_MODEL=qwen/qwen3.5-flash-02-23` and restart the
+development server.
+
+`OPENROUTER_BASE_URL` is optional and defaults to
+`https://openrouter.ai/api/v1`. Set it to another HTTP(S) URL when using an
+OpenRouter-compatible proxy or gateway.
 
 Start the development server:
 
@@ -106,7 +121,7 @@ When a request concerns a technical system, protocol, process, or organizational
 
 The evaluation suite runs the same prompt, tools, model, and agent loop used by the application. It simulates the browser canvas in memory so creation and editing tasks can be scored without launching the UI.
 
-Configure `OPENAI_API_KEY` and `BRAINTRUST_API_KEY`, then run:
+Configure `OPENROUTER_API_KEY` and `BRAINTRUST_API_KEY`, then run:
 
 ```bash
 npm run eval

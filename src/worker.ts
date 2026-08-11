@@ -5,7 +5,9 @@ export { DesignAgent };
 
 interface Env {
   DesignAgent: DurableObjectNamespace;
-  OPENAI_API_KEY: string;
+  OPENROUTER_API_KEY: string;
+  OPENROUTER_BASE_URL?: string;
+  OPENROUTER_MODEL?: string;
 }
 
 export default {
